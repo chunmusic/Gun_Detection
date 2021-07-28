@@ -52,7 +52,11 @@ def run(weights='yolov5s.pt',  # model.pt path(s)
     save_img = not nosave and not source.endswith('.txt')  # save inference images
     webcam = source.isnumeric() or source.endswith('.txt') or source.lower().startswith(
         ('rtsp://', 'rtmp://', 'http://', 'https://'))
-
+    
+    # Initialize FPS variable
+    new_frame_time = 0
+    prev_frame_time = 0
+    
     # Directories
     save_dir = increment_path(Path(project) / name, exist_ok=exist_ok)  # increment run
     (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
@@ -147,6 +151,13 @@ def run(weights='yolov5s.pt',  # model.pt path(s)
 
             # Print time (inference + NMS)
             print(f'{s}Done. ({t2 - t1:.3f}s)')
+        
+            # FPS
+            new_frame_time = time.time()
+            fps = 1/ (new_frame_time - prev_frame_time)
+            prev_frame_time = new_frame_time
+
+            cv2.putText(im0,"FPS: "+str(int(fps)), (7,70), cv2.FONT_HERSHEY_SIMPLEX,3,(100,255,0),3,cv2.LINE_AA)
 
             # Stream results
             if view_img:
